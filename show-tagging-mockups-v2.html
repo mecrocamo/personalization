@@ -1,0 +1,607 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Moods in Media Manager Console — V2 Mockups</title>
+<style>
+  :root{
+    --hdr:#2e7bab; --hdr-dark:#26688f;
+    --link:#3a87ad; --title:#5b9bd1;
+    --panel:#ececec; --panel-line:#cfcfcf;
+    --input-line:#c8c8c8;
+    --ink:#333; --ink-2:#666; --ink-3:#999;
+    --btn-blue:#337ab7; --btn-blue-d:#2e6da4;
+    --orange:#f0a733;
+    --tab:#79add0;
+    --auto-bg:#d9edf7; --auto-line:#bce8f1; --auto-ink:#31708f;
+    --man-bg:#f5f5f5; --man-line:#d5d5d5;
+    --ok:#3c8a53;
+  }
+  *{box-sizing:border-box; margin:0; padding:0;}
+  body{
+    font-family:"Open Sans","Segoe UI",Helvetica,Arial,sans-serif;
+    font-size:13px; color:var(--ink); background:#dfe3e6; -webkit-font-smoothing:antialiased;
+  }
+  button{font:inherit; cursor:pointer; border:none; background:none; color:inherit;}
+  input,select,textarea{font:inherit;}
+
+  /* ============ concept switcher ============ */
+  .toolbar{
+    position:sticky; top:0; z-index:60; display:flex; align-items:center; gap:10px;
+    padding:11px 20px; background:#22303c; color:#fff;
+  }
+  .toolbar .brand{font-weight:700; font-size:11px; letter-spacing:.05em; text-transform:uppercase; color:#93a5b5; margin-right:6px;}
+  .tab-btn{padding:6px 13px; border-radius:99px; font-size:12px; font-weight:600; color:#c3cedb; border:1px solid #45535f;}
+  .tab-btn:hover{color:#fff;}
+  .tab-btn.active{background:#fff; color:#22303c; border-color:#fff;}
+  .toolbar .spacer{flex:1;}
+  .notes-toggle{display:flex; align-items:center; gap:8px; font-size:12px; font-weight:600; color:#c3cedb;}
+  .nswitch{width:32px; height:18px; border-radius:99px; background:#45535f; position:relative; transition:background .15s;}
+  .nswitch::after{content:""; position:absolute; top:2px; left:2px; width:14px; height:14px; border-radius:50%; background:#fff; transition:left .15s;}
+  .nswitch.on{background:var(--orange);}
+  .nswitch.on::after{left:16px;}
+
+  .stage{max-width:1400px; margin:22px auto 70px; padding:0 18px;}
+  .app{
+    background:#fff; border-radius:4px; overflow:hidden; position:relative; min-height:900px;
+    box-shadow:0 18px 50px rgba(20,30,40,.25); display:flex; flex-direction:column;
+  }
+
+  /* ============ console header ============ */
+  .con-hdr{display:flex; align-items:stretch; background:var(--hdr); color:#fff; height:44px;}
+  .con-hdr .logo{display:flex; align-items:center; gap:9px; padding:0 16px; font-size:16px; font-weight:600;}
+  .con-hdr .pbs-mark{width:22px; height:22px; border-radius:50%; background:#fff; color:var(--hdr); display:grid; place-items:center; font-weight:800; font-size:10px;}
+  .con-hdr .right{margin-left:auto; display:flex; align-items:stretch;}
+  .con-hdr .hitem{display:flex; align-items:center; gap:7px; padding:0 15px; font-size:13px; border-left:1px solid rgba(255,255,255,.18);}
+  .con-hdr .bell{background:#b03050;}
+  .con-hdr .badge{background:#fff; color:#b03050; font-size:10px; font-weight:700; border-radius:99px; padding:1px 6px;}
+
+  .con-body{display:flex; flex:1; min-height:0;}
+  .con-side{width:195px; border-right:1px solid #d8d8d8; flex-shrink:0; background:#fff; padding-bottom:30px;}
+  .con-side .top{display:flex; align-items:center; justify-content:space-between; padding:13px 14px; color:var(--link); font-weight:600; border-bottom:2px solid var(--hdr);}
+  .con-side ul{list-style:none; padding:6px 0;}
+  .con-side li a{display:block; padding:7px 14px 7px 30px; color:#444; text-decoration:none; position:relative;}
+  .con-side li a::before{content:""; position:absolute; left:16px; top:0; bottom:0; border-left:1px dotted #bbb;}
+  .con-side li a:hover{background:#f2f7fa; color:var(--link);}
+  .con-side li a.on{color:var(--link); font-weight:600;}
+
+  .con-main{flex:1; min-width:0; background:#fff; display:flex; flex-direction:column;}
+  .crumbs{display:flex; align-items:center; gap:8px; padding:10px 18px; background:#f7f7f7; border-bottom:1px solid #e2e2e2; color:#777; font-size:12px;}
+  .crumbs a{color:var(--link); text-decoration:none;}
+  .page-title-row{display:flex; align-items:center; padding:14px 18px 10px;}
+  .page-title-row h1{color:var(--title); font-weight:400; font-size:24px;}
+  .page-title-row .right{margin-left:auto; display:flex; align-items:center; gap:12px;}
+  .fav{color:var(--link); font-size:13px;}
+  .btn-history{background:var(--orange); color:#fff; font-weight:600; padding:7px 14px; border-radius:4px; font-size:13px;}
+
+  .notes-bar{margin:4px 16px 12px; border:1px solid #ddd; background:#fafafa; padding:9px 13px; color:#555; font-size:13px; border-radius:2px;}
+  .notes-bar .car{color:#888; margin-right:8px; font-size:11px;}
+
+  /* ============ tabs ============ */
+  .mm-tabs{display:flex; gap:4px; padding:0 16px; position:relative; top:1px;}
+  .mm-tab{
+    background:var(--tab); color:#fff; font-size:13px; font-weight:400; padding:8px 15px;
+    border-radius:4px 4px 0 0; border:1px solid var(--tab); border-bottom:none;
+  }
+  .mm-tab:hover{background:#6aa2c8;}
+  .mm-tab.on{background:#fff; color:#333; border-color:#c9c9c9; font-weight:600;}
+
+  .form-panel{margin:0 16px 16px; border:1px solid #c9c9c9; background:var(--panel); padding:22px 26px 0;}
+  .frow{display:flex; align-items:flex-start; gap:14px; margin-bottom:15px;}
+  .flabel{
+    width:230px; flex-shrink:0; text-align:right; padding-top:6px; color:#333;
+    display:flex; justify-content:flex-end; align-items:center; gap:6px;
+  }
+  .q{width:15px; height:15px; border-radius:50%; background:#222; color:#fff; font-size:10px; font-weight:700; display:inline-grid; place-items:center; flex-shrink:0;}
+  .fctrl{flex:1; min-width:0; padding-top:6px;}
+  .fctrl.tight{padding-top:0;}
+  .static{padding-top:6px; color:#333;}
+  .tin{width:100%; border:1px solid var(--input-line); background:#fff; padding:7px 10px; border-radius:2px; color:#333;}
+  .tin::placeholder{color:#aaa;}
+  textarea.tin{resize:vertical;}
+  select.tin{appearance:auto; padding:6px 8px;}
+  a.slug{color:var(--link); text-decoration:none;}
+
+  /* console toggle */
+  .ctog{display:inline-flex; align-items:center; border-radius:99px; overflow:hidden; font-size:10px; font-weight:700; cursor:pointer; user-select:none;}
+  .ctog .lab{padding:4px 9px; color:#fff;}
+  .ctog .knob{width:18px; height:18px; border-radius:50%; background:#f5f5f5; border:1px solid #bbb; margin:2px;}
+  .ctog.on{background:#4a90c4;}
+  .ctog.off{background:#9a9a9a; flex-direction:row-reverse;}
+
+  .save-strip{margin:26px -26px 0; padding:14px 20px; background:#f4f4f4; border-top:1px solid #d5d5d5; display:flex;}
+  .btn-save{margin-left:auto; background:var(--btn-blue); color:#fff; font-weight:600; padding:8px 22px; border-radius:3px;}
+  .btn-save:hover{background:var(--btn-blue-d);}
+
+  /* ============ MOODS section ============ */
+  .moods-box{background:#fff; border:1px solid var(--input-line); border-radius:2px; padding:10px 12px 8px;}
+  .chips{display:flex; flex-wrap:wrap; gap:6px;}
+  .chip{
+    display:inline-flex; align-items:center; gap:6px; padding:4px 9px; border-radius:3px;
+    font-size:12px; font-weight:600; line-height:1.2; border:1px solid;
+  }
+  .chip.auto{background:var(--auto-bg); border-color:var(--auto-line); color:var(--auto-ink);}
+  .chip.manual{background:var(--man-bg); border-color:var(--man-line); color:#444;}
+  .chip .spark{font-size:11px;}
+  .chip .dot,.moods-meta .dot{width:6px; height:6px; border-radius:50%; background:#777; display:inline-block; flex-shrink:0;}
+  .chip .conf{font-weight:400; opacity:.65; font-size:11px;}
+  .chip .x{opacity:.45; font-size:12px; padding:0 1px; line-height:1;}
+  .chip .x:hover{opacity:1;}
+  .moods-meta{display:flex; align-items:center; gap:14px; margin-top:9px; padding-top:8px; border-top:1px solid #eee; font-size:12px; color:#777; flex-wrap:wrap;}
+  .moods-meta .spark{color:var(--auto-ink);}
+  .moods-meta a{color:var(--link); text-decoration:none; font-weight:600;}
+  .moods-meta a:hover{text-decoration:underline;}
+  .btn-mini{
+    background:#fff; border:1px solid #bbb; color:#333; font-size:12px; font-weight:600;
+    padding:4px 11px; border-radius:3px;
+  }
+  .btn-mini:hover{background:#f3f3f3; border-color:#999;}
+  .btn-mini.blue{background:var(--btn-blue); border-color:var(--btn-blue); color:#fff;}
+  .btn-mini.blue:hover{background:var(--btn-blue-d);}
+  .help-inline{font-size:12px; color:#888; margin-top:6px;}
+
+  /* ============ modals ============ */
+  .scrim{position:fixed; inset:0; background:rgba(0,0,0,.45); z-index:50; display:none; align-items:flex-start; justify-content:center; padding:70px 20px 30px; overflow:auto;}
+  .scrim.open{display:flex;}
+  .modal{background:#fff; border-radius:5px; width:660px; max-width:100%; box-shadow:0 20px 60px rgba(0,0,0,.4); overflow:hidden; animation:pop .16s ease-out;}
+  .modal.wide{width:760px;}
+  @keyframes pop{from{transform:translateY(6px); opacity:0} to{transform:none; opacity:1}}
+  .m-h{display:flex; align-items:flex-start; gap:10px; padding:15px 18px; border-bottom:1px solid #e3e3e3;}
+  .m-h h3{font-size:17px; font-weight:600; color:#333;}
+  .m-h .sub{font-size:12px; color:#777; margin-top:4px; line-height:1.5;}
+  .m-h .x{margin-left:auto; color:#999; font-size:17px; padding:2px 6px;}
+  .m-h .x:hover{color:#333;}
+  .m-b{padding:16px 18px;}
+  .m-f{display:flex; align-items:center; gap:9px; padding:12px 18px; background:#f4f4f4; border-top:1px solid #ddd;}
+  .m-f .left{margin-right:auto;}
+  .link-btn{color:var(--link); font-weight:600; font-size:12px;}
+  .link-btn:hover{text-decoration:underline;}
+
+  /* details rows (screen 2) */
+  .d-row{display:flex; align-items:center; gap:13px; padding:11px 2px; border-bottom:1px solid #eee;}
+  .d-row:last-child{border-bottom:none;}
+  .d-main{flex:1; min-width:0;}
+  .d-top{display:flex; align-items:center; gap:10px; flex-wrap:wrap;}
+  .d-ev{font-size:11px; color:#999; margin-top:4px;}
+  .meter{display:inline-flex; align-items:center; gap:6px; font-size:11px; color:#666; font-weight:600;}
+  .meter .bar{width:58px; height:5px; border-radius:99px; background:#e4e4e4; overflow:hidden;}
+  .meter .bar i{display:block; height:100%; background:var(--hdr);}
+  .removed-pill{font-size:11px; font-weight:700; color:#999; background:#f0f0f0; padding:3px 9px; border-radius:99px;}
+  .undo{font-size:11px; font-weight:700; color:var(--link); margin-left:6px;}
+  .undo:hover{text-decoration:underline;}
+  .d-note{margin-top:13px; padding:9px 12px; background:#f7f9fa; border:1px solid #e2e8ec; border-radius:3px; font-size:12px; color:#667; line-height:1.5;}
+
+  /* picker (screen 3) */
+  .zone-label{display:flex; align-items:center; font-size:11px; font-weight:700; letter-spacing:.05em; text-transform:uppercase; color:#888; margin-bottom:8px;}
+  .zone-label .cnt{margin-left:auto; text-transform:none; letter-spacing:0; font-weight:600; color:#666;}
+  .zone-label .cnt b{color:#333;}
+  .applied-zone{border:1px dashed #c5c5c5; background:#fafafa; border-radius:3px; padding:11px 12px;}
+  .empty-note{font-size:12px; color:#999;}
+  .suppress-note{display:flex; align-items:center; gap:8px; margin-top:9px; font-size:11.5px; color:#8a6d3b; background:#fcf8e3; border:1px solid #f0e6c8; border-radius:3px; padding:7px 10px;}
+  .suppress-note .restore{margin-left:auto; font-weight:700; color:var(--link); flex-shrink:0;}
+  .suppress-note .restore:hover{text-decoration:underline;}
+  .p-search{display:flex; align-items:center; gap:8px; margin:15px 0 10px; border:1px solid var(--input-line); border-radius:3px; background:#fff; padding:8px 11px;}
+  .p-search:focus-within{border-color:var(--hdr); box-shadow:0 0 0 3px rgba(46,123,171,.14);}
+  .p-search input{border:none; outline:none; flex:1; background:transparent; font-size:13px;}
+  .p-search .ic{color:#aaa;}
+  .p-search .found{font-size:11px; color:#999; flex-shrink:0;}
+  .vocab-flat{max-height:290px; overflow:auto; padding:2px 4px 8px 0; display:flex; flex-wrap:wrap; gap:6px; align-content:flex-start;}
+  .pick{
+    display:inline-flex; align-items:center; gap:5px; padding:4px 10px; border-radius:3px;
+    font-size:12px; font-weight:600; border:1px solid #ccc; background:#fff; color:#555;
+  }
+  .pick:hover{border-color:#8faebf; color:#333; background:#f6fafc;}
+  .pick .pm{font-weight:700; opacity:.5;}
+  .pick.on{background:var(--auto-bg); border-color:var(--auto-line); color:var(--auto-ink);}
+  .pick.on .pm{opacity:1;}
+  .pick.disabled{opacity:.4; pointer-events:none;}
+  .limit-warn{display:none; font-size:11.5px; color:#8a6d3b; background:#fcf8e3; border:1px solid #f0e6c8; border-radius:3px; padding:6px 10px; margin-bottom:8px;}
+  .limit-warn.show{display:block;}
+
+  /* toast */
+  .toast{
+    position:absolute; bottom:22px; left:50%; transform:translateX(-50%) translateY(8px);
+    background:#22303c; color:#fff; font-size:12.5px; font-weight:600; padding:9px 17px; border-radius:99px;
+    opacity:0; pointer-events:none; transition:all .25s; z-index:70; white-space:nowrap; box-shadow:0 10px 30px rgba(0,0,0,.3);
+  }
+  .toast.show{opacity:1; transform:translateX(-50%) translateY(0);}
+
+  /* pattern notes */
+  .note-dot{
+    display:none !important; width:18px; height:18px; border-radius:50%; background:#ff6d3a; color:#fff;
+    font-size:10px; font-weight:800; align-items:center; justify-content:center; flex-shrink:0;
+    box-shadow:0 0 0 3px rgba(255,109,58,.25); vertical-align:middle; line-height:1; cursor:default;
+  }
+  body.notes-on .note-dot{display:inline-flex !important;}
+  .notes-panel{
+    display:none; position:fixed; right:24px; bottom:24px; width:330px; z-index:80;
+    background:#fff; border-radius:8px; box-shadow:0 20px 60px rgba(15,18,30,.35); border:1px solid #ddd; overflow:hidden;
+  }
+  body.notes-on .notes-panel{display:block;}
+  .notes-panel .np-h{padding:11px 15px; background:#fff4ef; border-bottom:1px solid #ffe0d3; font-size:12px; font-weight:700; color:#c0430f;}
+  .notes-panel ol{list-style:none; padding:6px 15px 12px; max-height:290px; overflow:auto;}
+  .notes-panel li{display:flex; gap:9px; padding:8px 0; font-size:11.5px; line-height:1.5; color:#555; border-top:1px solid #eee;}
+  .notes-panel li:first-child{border-top:none;}
+  .notes-panel li b{color:#222;}
+  .notes-panel li .src{display:block; margin-top:2px; font-size:10.5px; color:#999; font-style:italic;}
+</style>
+</head>
+<body>
+
+<!-- ===================== SWITCHER ===================== -->
+<div class="toolbar">
+  <span class="brand">Moods · Media Manager · V2</span>
+  <button class="tab-btn active" data-screen="1" onclick="go(1)">1 · Core Data + Moods</button>
+  <button class="tab-btn" data-screen="2" onclick="go(2)">2 · Auto-applied details</button>
+  <button class="tab-btn" data-screen="3" onclick="go(3)">3 · Edit moods</button>
+  <div class="spacer"></div>
+  <button class="notes-toggle" onclick="toggleNotes()"><span>Pattern notes</span><span class="nswitch" id="notesSwitch"></span></button>
+</div>
+
+<div class="stage">
+<div class="app" id="app">
+
+  <!-- console header -->
+  <div class="con-hdr">
+    <div class="logo"><span class="pbs-mark">◉</span> PBS Console</div>
+    <div class="right">
+      <div class="hitem">▦ PBS Tools</div>
+      <div class="hitem bell">🔔 <span class="badge">9</span></div>
+      <div class="hitem">👤 mecrocamo@pbs.org ▾</div>
+    </div>
+  </div>
+
+  <div class="con-body">
+    <nav class="con-side">
+      <div class="top">Media Manager <span>⌄</span></div>
+      <ul>
+        <li><a href="#" onclick="return false">Franchises</a></li>
+        <li><a href="#" class="on" onclick="return false">Shows</a></li>
+        <li><a href="#" onclick="return false">Remote Assets</a></li>
+        <li><a href="#" onclick="return false">Search</a></li>
+        <li><a href="#" onclick="return false">Help</a></li>
+      </ul>
+    </nav>
+
+    <main class="con-main">
+      <div class="crumbs">🏠 <span>›</span> <a href="#" onclick="return false">Shows</a> <span>›</span> Sherlock</div>
+      <div class="page-title-row">
+        <h1>Sherlock</h1>
+        <div class="right">
+          <span class="fav">☆ Favorite</span>
+          <button class="btn-history">🕒 History</button>
+        </div>
+      </div>
+      <div class="notes-bar"><span class="car">›</span> Notes</div>
+
+      <div class="mm-tabs">
+        <button class="mm-tab">Seasons</button>
+        <button class="mm-tab">Specials</button>
+        <button class="mm-tab">Extras</button>
+        <button class="mm-tab">Collections</button>
+        <button class="mm-tab on">Core Data</button>
+        <button class="mm-tab">Additional Data</button>
+        <button class="mm-tab">Images</button>
+        <button class="mm-tab">Availability</button>
+        <button class="mm-tab">Relationships</button>
+      </div>
+
+      <div class="form-panel">
+        <div class="frow"><div class="flabel">Title <span class="q">?</span></div><div class="static">Sherlock</div></div>
+        <div class="frow"><div class="flabel">Sortable Title <span class="q">?</span></div><div class="static">Sherlock</div></div>
+        <div class="frow"><div class="flabel">Slug <span class="q">?</span></div><div class="static"><a class="slug" href="#" onclick="return false">sherlock</a></div></div>
+        <div class="frow"><div class="flabel">PBS Content ID <span class="q">?</span></div><div class="static">cead2f61-fbb7-47bc-8cca-01d276f54116</div></div>
+        <div class="frow"><div class="flabel">TMS ID <span class="q">?</span></div>
+          <div class="fctrl tight">
+            <select class="tin"><option>Custom TMS ID</option></select>
+            <input class="tin" style="margin-top:8px" value="SH013042690000">
+          </div>
+        </div>
+        <div class="frow"><div class="flabel">Show NOLA <span class="q">?</span></div><div class="fctrl tight"><input class="tin" value="MAST"></div></div>
+        <div class="frow"><div class="flabel">Short Description <span class="q">?</span></div><div class="fctrl tight"><textarea class="tin" rows="2">Sherlock Holmes solves crimes with his long-suffering, faithful friend, Dr. John Watson.</textarea></div></div>
+        <div class="frow"><div class="flabel">Long Description <span class="q">?</span></div><div class="fctrl tight"><textarea class="tin" rows="4">The world's only consulting detective, Sherlock Holmes (Benedict Cumberbatch), teams up with his long-suffering, faithful friend, Dr. John Watson (Martin Freeman), to solve a dizzying array of crimes and battle diabolical villains with his signature deductive reasoning and his stunning lack of social grace.</textarea></div></div>
+        <div class="frow"><div class="flabel">Premiere Date <span class="q">?</span></div><div class="fctrl tight"><input class="tin" placeholder="Premiere Date"></div></div>
+        <div class="frow"><div class="flabel">Associated Franchise <span class="q">?</span></div><div class="fctrl tight"><select class="tin"><option>Masterpiece</option></select></div></div>
+        <div class="frow"><div class="flabel">Audience</div><div class="static">PBS National</div></div>
+        <div class="frow"><div class="flabel">Affiliation <span class="q">?</span></div><div class="static">Masterpiece, PBS National, Sherlock</div></div>
+        <div class="frow"><div class="flabel">Genre <span class="q">?</span></div><div class="fctrl tight"><select class="tin"><option>Drama</option></select></div></div>
+
+        <!-- ============ NEW: MOODS ============ -->
+        <div class="frow">
+          <div class="flabel">Moods <span class="q">?</span> <span class="note-dot">1</span></div>
+          <div class="fctrl tight">
+            <div class="moods-box">
+              <div class="chips" id="appliedChips"><!-- js --></div>
+              <div class="moods-meta">
+                <span><span class="spark">✦</span> Auto-Generated <span class="note-dot">2</span></span>
+                <span><span class="dot"></span> Added by producer</span>
+                <span>Last scan: Today, 6:12 AM</span>
+                <a href="#" onclick="go(2); return false">View details</a>
+                <span style="margin-left:auto"><button class="btn-mini blue" onclick="go(3)">✎ Edit moods</button></span>
+              </div>
+            </div>
+            <div class="help-inline">Moods power discovery and "more like this" recommendations. Edits you make here always take priority.</div>
+          </div>
+        </div>
+        <div class="frow">
+          <div class="flabel">Auto-Generate Moods <span class="q">?</span> <span class="note-dot">3</span></div>
+          <div class="fctrl"><span class="ctog on" id="autoTog" onclick="toggleAuto()"><span class="lab">ON</span><span class="knob"></span></span></div>
+        </div>
+        <!-- ============ /MOODS ============ -->
+
+        <div class="frow"><div class="flabel">Display Episode Number <span class="q">?</span></div><div class="fctrl"><span class="ctog on"><span class="lab">ON</span><span class="knob"></span></span></div></div>
+        <div class="frow"><div class="flabel">Descending Episode Order <span class="q">?</span></div><div class="fctrl"><span class="ctog off"><span class="lab">OFF</span><span class="knob"></span></span></div></div>
+        <div class="frow"><div class="flabel">Ordinal Season <span class="q">?</span></div><div class="static">Yes</div></div>
+        <div class="frow"><div class="flabel">Require Content Rating <span class="q">?</span></div><div class="fctrl"><span class="ctog off"><span class="lab">OFF</span><span class="knob"></span></span></div></div>
+        <div class="frow"><div class="flabel">Content Rating</div><div class="fctrl tight"><select class="tin"><option>Select Content Rating</option></select></div></div>
+        <div class="frow"><div class="flabel">Allow Viral Player Embed <span class="q">?</span></div><div class="fctrl"><span class="ctog on"><span class="lab">ON</span><span class="knob"></span></span></div></div>
+        <div class="frow"><div class="flabel">Created</div><div class="static">April 11, 2017, 3:17 a.m. EDT by CoreBot</div></div>
+        <div class="frow"><div class="flabel">Updated</div><div class="static">April 28, 2026, 2:55 p.m. EDT by Megan Beauregard</div></div>
+
+        <div class="save-strip"><button class="btn-save">Save</button></div>
+      </div>
+      <div style="height:14px"></div>
+    </main>
+  </div>
+
+  <!-- ===================== SCREEN 2 · AUTO-APPLIED DETAILS ===================== -->
+  <div class="scrim" id="scrim2">
+    <div class="modal">
+      <div class="m-h">
+        <div>
+          <h3>Auto-Generated moods <span class="note-dot">1</span></h3>
+          <p class="sub">Auto-generated from the PBS mood vocabulary, based on episode transcripts, score &amp; descriptions for <b>Sherlock</b>. Remove any that don't fit — removed moods won't be re-added. <span class="note-dot">3</span></p>
+        </div>
+        <button class="x" onclick="go(1)">✕</button>
+      </div>
+      <div class="m-b">
+        <div id="detailList"><!-- js --></div>
+        <div class="d-note">🔒 Auto-generation only draws from the approved mood vocabulary (v2.3, 200 moods) — it can't invent new terms. Moods you add or remove always take priority. <span class="note-dot">2</span></div>
+      </div>
+      <div class="m-f">
+        <span class="left" style="font-size:12px; color:#888" id="detailSummary"></span>
+        <button class="btn-mini" onclick="go(1)">Close</button>
+        <button class="btn-mini blue" onclick="go(3)">✎ Edit moods</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===================== SCREEN 3 · EDIT MOODS ===================== -->
+  <div class="scrim" id="scrim3">
+    <div class="modal wide">
+      <div class="m-h">
+        <div>
+          <h3>Edit moods</h3>
+          <p class="sub">Pick from the PBS mood vocabulary. Your choices always take priority over auto-generated moods. <span class="note-dot">4</span></p>
+        </div>
+        <button class="x" onclick="go(1)">✕</button>
+      </div>
+      <div class="m-b">
+        <div class="zone-label">Applied to this show <span class="note-dot">1</span> <span class="cnt"><b id="pickCount">5</b> of 8 max <span class="note-dot">3</span></span></div>
+        <div class="applied-zone">
+          <div class="chips" id="pickerApplied"><!-- js --></div>
+          <div class="suppress-note" id="suppressNote" style="display:none">
+            <span>⚠</span><span id="suppressText"></span>
+            <button class="restore" onclick="restoreSuppressed()">Restore</button>
+          </div>
+        </div>
+
+        <div class="p-search">
+          <span class="ic">🔍</span>
+          <input id="vocabSearch" placeholder="Search 200 moods… (e.g. suspenseful, witty)" oninput="renderPicker()">
+          <span class="found" id="foundCount"></span>
+          <span class="note-dot">2</span>
+        </div>
+        <div class="limit-warn" id="limitWarn">Mood limit reached (8) — remove a mood above to add another.</div>
+        <div class="vocab-flat" id="vocabFlat"><!-- js --></div>
+      </div>
+      <div class="m-f">
+        <button class="link-btn left" onclick="resetToAuto()">↺ Reset to auto-generated</button>
+        <button class="btn-mini" onclick="go(1)">Cancel</button>
+        <button class="btn-mini blue" onclick="savePicker()">Save changes</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="toast" id="toast"></div>
+</div>
+</div>
+
+<!-- pattern notes -->
+<div class="notes-panel">
+  <div class="np-h">◉ Patterns on this screen</div>
+  <ol id="notesList"><!-- js --></ol>
+</div>
+
+<script>
+/* ------------------ vocabulary (from moods.csv, deduped, 199) ------------------ */
+const VOCAB = ["absurd","action-packed","adventurous","altruistic","ambitious","analytical","archival","artistic","artsy","authentic","biological","biting","bittersweet","bleak","breathtaking","brooding","candid","chaotic","cheerful","chilling","civic-minded","claustrophobic","collaborative","community-focused","confusing","conservation-focused","contemplative","conversational","cosmological","creepy","curious","cynical","dark","dense","depressing","dialogue-driven","disorienting","disturbing","documentary-style","dreamlike","dystopian","eccentric","ecological","eerie","emotional","empathetic","empowering","endearing","energetic","enlightening","environmental","epic","ethical","exhilarating","existential","experimental","exploratory","fact-based","factual","fantastical","fast-paced","funny","futuristic","geological","global","gloomy","grandeur","graphic","gripping","gritty","gruesome","harrowing","haunting","heart-pounding","heart-wrenching","heartfelt","heartwarming","heritage-rich","hilarious","historically accurate","hopeful","human-centered","humanitarian","hypnotic","idyllic","imaginative","immersive","in-depth","informative","innovative","inquisitive","insightful","inspirational","intellectual","intense","intimate","intriguing","introspective","investigative","layered","life-affirming","light-hearted","magical","majestic","meditative","melancholic","meticulous","mind-bending","minimalist","moody","moralistic","moving","multi-faceted","mysterious","narrative-driven","naturalistic","nerve-wracking","nostalgic","observational","offbeat","ominous","oppressive","optimistic","paranoid","parodic","patriotic","perspective-shifting","pessimistic","philanthropic","philosophical","poetic","poignant","pretentious","primal","provocative","quirky","raw","realistic","rebellious","reflective","refreshing","restrained","revealing","revelatory","revolutionary","rich","romantic","sad","satirical","satisfying","scenic","scholarly","sci-fi","scientific","sensitive","sentimental","serene","shocking","slick","slow-burning","socially conscious","sociopolitical","somber","soothing","sophisticated","sorrowful","spiritual","spooky","stylish","surreal","suspenseful","tense","thought-provoking","thoughtful","thrilling","timeless","touching","tragic","tragicomic","tragicomical","transformative","unbiased","unconventional","understated","unpredictable","unsettling","uplifting","values-driven","vibrant","violent","visceral","visually stunning","vivid","weird","whimsical","wholesome","wild","wildly imaginative","witty","zany"];
+
+/* ------------------ state ------------------ */
+let state = {
+  screen: 1,
+  applied: [
+    {name:"suspenseful", source:"auto",   conf:94, ev:"Detected across 12 of 13 episodes · dialogue & score", when:"Aug 6"},
+    {name:"witty",       source:"auto",   conf:89, ev:"Detected across 11 of 13 episodes · dialogue",          when:"Aug 6"},
+    {name:"gripping",    source:"auto",   conf:86, ev:"Detected across 10 of 13 episodes · pacing & score",    when:"Aug 6"},
+    {name:"fast-paced",  source:"auto",   conf:78, ev:"Detected across 9 of 13 episodes · editing rhythm",     when:"Jul 30"},
+    {name:"intriguing",  source:"manual"},
+  ],
+  suppressed: [],   // auto moods the producer removed — won't be re-applied
+};
+const AUTO_DEFAULT = [
+  {name:"suspenseful", conf:94, ev:"Detected across 12 of 13 episodes · dialogue & score", when:"Aug 6"},
+  {name:"witty",       conf:89, ev:"Detected across 11 of 13 episodes · dialogue",          when:"Aug 6"},
+  {name:"gripping",    conf:86, ev:"Detected across 10 of 13 episodes · pacing & score",    when:"Aug 6"},
+  {name:"fast-paced",  conf:78, ev:"Detected across 9 of 13 episodes · editing rhythm",     when:"Jul 30"},
+];
+
+const NOTES = {
+  1: [
+    ["Native to the page","Moods is one more Core Data row — same label/help-icon grammar, same control column, sitting next to Genre where editors already look. <span class='src'>Pattern: extend the form, don't bolt on a module</span>"],
+    ["Provenance at a glance","Auto-Generated moods use the console's info-blue chip with a ✦ mark; producer-added moods use a gray chip with a ● mark — both spelled out in the key. <span class='src'>Seen in: Grammarly, Dovetail, Mindtrip</span>"],
+    ["Kill switch as a standard toggle","Auto-Generate Moods reuses the page's ON/OFF toggle pattern (Display Episode Number, etc.) — zero new UI to learn. <span class='src'>Seen in: Zapier, Hotjar</span>"],
+    ["Transparency instead of approval","Since moods apply automatically, the section shows when the last scan ran and links to details — control shifts from pre-approval to easy post-hoc override. <span class='src'>Seen in: Squarespace Beacon AI</span>"],
+  ],
+  2: [
+    ["Post-hoc control, not a review queue","Moods are already live; each row offers Remove (with instant Undo) rather than Accept/Dismiss. <span class='src'>Adapted from: Grammarly, Dovetail</span>"],
+    ["Confidence + evidence build trust","The meter plus a 'detected across…' line explains why each mood was applied. <span class='src'>Seen in: Squarespace Beacon review</span>"],
+    ["Removal = suppression","A removed auto-mood is remembered and never re-applied by the next scan — the producer's override sticks. <span class='src'>Seen in: Gamma 'Undo edits'</span>"],
+  ],
+  3: [
+    ["Two-zone layout","Applied moods above the line, the full flat vocabulary below — selection state is always visible while browsing. <span class='src'>Seen in: Polywork, Hotjar</span>"],
+    ["Flat list needs search-first","With 199 moods and no hierarchy, type-ahead filtering with a live match count is the primary navigation; browsing is the fallback. <span class='src'>Seen in: Fabric, Juicebox</span>"],
+    ["Visible hard limit","A live 'n of 8 max' counter; at the cap, unselected moods disable and an inline message explains the fix — no silent dead ends. <span class='src'>Seen in: Cosmos 'Choose 3', Kit 'up to 3'</span>"],
+    ["Overrides are reversible","Removed auto-moods are listed with Restore, and 'Reset to auto-generated' returns to the machine's view. <span class='src'>Seen in: Squarespace 'Regenerate'</span>"],
+  ],
+};
+
+/* ------------------ helpers ------------------ */
+const $ = id => document.getElementById(id);
+const MAX = 8;
+function chipHTML(t, removable){
+  const mark = t.source === "auto" ? "<span class='spark'>✦</span>" : "<span class='dot'></span>";
+  const conf = t.source === "auto" && t.conf ? `<span class="conf">${t.conf}%</span>` : "";
+  const x = removable ? `<button class="x" title="Remove" onclick="removeMood('${t.name}')">✕</button>` : "";
+  return `<span class="chip ${t.source}">${mark}${t.name}${conf}${x}</span>`;
+}
+
+/* ------------------ renders ------------------ */
+function renderAll(){
+  $("appliedChips").innerHTML = state.applied.map(t=>chipHTML(t,false)).join("");
+  renderDetails();
+  renderPicker();
+  renderNotes();
+}
+
+function renderDetails(){
+  const rows = [];
+  state.applied.filter(t=>t.source==="auto").forEach(t=>{
+    rows.push(`<div class="d-row">
+      <div class="d-main">
+        <div class="d-top">
+          <span class="chip auto"><span class="spark">✦</span>${t.name}</span>
+          <span class="meter"><span class="bar"><i style="width:${t.conf}%"></i></span>${t.conf}%</span>
+          <span style="font-size:11px;color:#aaa">Added ${t.when}</span>
+        </div>
+        <div class="d-ev">${t.ev}</div>
+      </div>
+      <button class="btn-mini" onclick="removeMood('${t.name}')">Remove</button>
+    </div>`);
+  });
+  state.suppressed.forEach(s=>{
+    rows.push(`<div class="d-row" style="opacity:.75">
+      <div class="d-main">
+        <div class="d-top">
+          <span class="chip manual" style="text-decoration:line-through">${s.name}</span>
+          <span class="removed-pill">Removed — won't be re-applied</span>
+          <button class="undo" onclick="restoreMood('${s.name}')">Undo</button>
+        </div>
+      </div>
+    </div>`);
+  });
+  $("detailList").innerHTML = rows.join("") || "<p class='empty-note' style='padding:8px 0'>No auto-generated moods yet — the next scan runs tonight.</p>";
+  const n = state.applied.filter(t=>t.source==="auto").length;
+  $("detailSummary").textContent = `${n} auto-generated · ${state.suppressed.length} removed`;
+}
+
+function renderPicker(){
+  $("pickerApplied").innerHTML = state.applied.length
+    ? state.applied.map(t=>chipHTML(t,true)).join("")
+    : "<span class='empty-note'>No moods applied — pick from the list below.</span>";
+  $("pickCount").textContent = state.applied.length;
+
+  if(state.suppressed.length){
+    $("suppressNote").style.display = "flex";
+    $("suppressText").innerHTML = `Removed auto-mood${state.suppressed.length===1?"":"s"} (won't be re-applied): <b>${state.suppressed.map(s=>s.name).join(", ")}</b>`;
+  } else $("suppressNote").style.display = "none";
+
+  const q = ($("vocabSearch").value||"").trim().toLowerCase();
+  const appliedNames = state.applied.map(t=>t.name);
+  const atLimit = state.applied.length >= MAX;
+  $("limitWarn").classList.toggle("show", atLimit);
+  const matches = VOCAB.filter(m=>!q || m.includes(q));
+  $("foundCount").textContent = q ? `${matches.length} match${matches.length===1?"":"es"}` : `${VOCAB.length} moods`;
+  $("vocabFlat").innerHTML = matches.map(m=>{
+    const on = appliedNames.includes(m);
+    const dis = !on && atLimit;
+    return `<button class="pick ${on?"on":""} ${dis?"disabled":""}" onclick="togglePick('${m.replace(/'/g,"\\'")}')"><span class="pm">${on?"✓":"+"}</span>${m}</button>`;
+  }).join("") || "<p class='empty-note' style='padding:10px 4px'>No matches in the vocabulary.</p>";
+}
+
+function renderNotes(){
+  $("notesList").innerHTML = NOTES[state.screen].map((n,i)=>
+    `<li><span class="note-dot">${i+1}</span><span><b>${n[0]}.</b> ${n[1]}</span></li>`).join("");
+}
+
+/* ------------------ actions ------------------ */
+function go(n){
+  state.screen = n;
+  document.querySelectorAll(".tab-btn").forEach(t=>t.classList.toggle("active", +t.dataset.screen===n));
+  $("scrim2").classList.toggle("open", n===2);
+  $("scrim3").classList.toggle("open", n===3);
+  renderNotes();
+}
+
+function removeMood(name){
+  const t = state.applied.find(t=>t.name===name);
+  if(!t) return;
+  state.applied = state.applied.filter(x=>x.name!==name);
+  if(t.source==="auto" && !state.suppressed.find(s=>s.name===name)){
+    state.suppressed.push({name:t.name, conf:t.conf, ev:t.ev, when:t.when});
+    toast(`"${name}" removed — it won't be re-applied`);
+  }
+  renderAll();
+}
+function restoreMood(name){
+  const s = state.suppressed.find(s=>s.name===name);
+  if(!s) return;
+  if(state.applied.length >= MAX){ toast("Mood limit reached (8) — remove a mood first."); return; }
+  state.suppressed = state.suppressed.filter(x=>x.name!==name);
+  state.applied.push({name:s.name, source:"auto", conf:s.conf, ev:s.ev, when:s.when});
+  renderAll();
+}
+function restoreSuppressed(){
+  [...state.suppressed].forEach(s=>restoreMood(s.name));
+}
+function togglePick(name){
+  if(state.applied.find(t=>t.name===name)){ removeMood(name); return; }
+  if(state.applied.length >= MAX){ toast("Mood limit reached (8) — remove a mood first."); return; }
+  state.suppressed = state.suppressed.filter(s=>s.name!==name);
+  state.applied.push({name, source:"manual"});
+  renderAll();
+}
+function resetToAuto(){
+  state.applied = AUTO_DEFAULT.map(a=>({name:a.name, source:"auto", conf:a.conf, ev:a.ev, when:a.when}));
+  state.suppressed = [];
+  renderAll();
+  toast("Restored auto-generated moods");
+}
+function savePicker(){
+  go(1);
+  toast("Moods saved — your edits take priority over auto-generation");
+}
+function toggleAuto(){
+  const t = $("autoTog");
+  const on = t.classList.toggle("on");
+  t.classList.toggle("off", !on);
+  t.innerHTML = on ? "<span class='lab'>ON</span><span class='knob'></span>" : "<span class='lab'>OFF</span><span class='knob'></span>";
+  toast(on ? "Auto-Generate Moods on" : "Auto-Generate Moods paused for this show");
+}
+function toggleNotes(){
+  document.body.classList.toggle("notes-on");
+  $("notesSwitch").classList.toggle("on");
+}
+let toastTimer;
+function toast(msg){
+  const t = $("toast");
+  t.textContent = msg; t.classList.add("show");
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(()=>t.classList.remove("show"), 2600);
+}
+
+renderAll();
+</script>
+</body>
+</html>
