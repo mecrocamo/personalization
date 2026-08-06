@@ -163,7 +163,6 @@
   .d-row:last-child{border-bottom:none;}
   .d-main{flex:1; min-width:0;}
   .d-top{display:flex; align-items:center; gap:10px; flex-wrap:wrap;}
-  .d-ev{font-size:11px; color:#999; margin-top:4px;}
   .meter{display:inline-flex; align-items:center; gap:6px; font-size:11px; color:#666; font-weight:600;}
   .meter .bar{width:58px; height:5px; border-radius:99px; background:#e4e4e4; overflow:hidden;}
   .meter .bar i{display:block; height:100%; background:var(--hdr);}
@@ -422,19 +421,19 @@ const VOCAB = ["absurd","action-packed","adventurous","altruistic","ambitious","
 let state = {
   screen: 1,
   applied: [
-    {name:"suspenseful", source:"auto",   conf:94, ev:"Detected across 12 of 13 episodes · dialogue & score", when:"Aug 6"},
-    {name:"witty",       source:"auto",   conf:89, ev:"Detected across 11 of 13 episodes · dialogue",          when:"Aug 6"},
-    {name:"gripping",    source:"auto",   conf:86, ev:"Detected across 10 of 13 episodes · pacing & score",    when:"Aug 6"},
-    {name:"fast-paced",  source:"auto",   conf:78, ev:"Detected across 9 of 13 episodes · editing rhythm",     when:"Jul 30"},
+    {name:"suspenseful", source:"auto",   conf:94, when:"Aug 6"},
+    {name:"witty",       source:"auto",   conf:89, when:"Aug 6"},
+    {name:"gripping",    source:"auto",   conf:86, when:"Aug 6"},
+    {name:"fast-paced",  source:"auto",   conf:78, when:"Jul 30"},
     {name:"intriguing",  source:"manual"},
   ],
   suppressed: [],   // auto moods the producer removed — won't be re-applied
 };
 const AUTO_DEFAULT = [
-  {name:"suspenseful", conf:94, ev:"Detected across 12 of 13 episodes · dialogue & score", when:"Aug 6"},
-  {name:"witty",       conf:89, ev:"Detected across 11 of 13 episodes · dialogue",          when:"Aug 6"},
-  {name:"gripping",    conf:86, ev:"Detected across 10 of 13 episodes · pacing & score",    when:"Aug 6"},
-  {name:"fast-paced",  conf:78, ev:"Detected across 9 of 13 episodes · editing rhythm",     when:"Jul 30"},
+  {name:"suspenseful", conf:94, when:"Aug 6"},
+  {name:"witty",       conf:89, when:"Aug 6"},
+  {name:"gripping",    conf:86, when:"Aug 6"},
+  {name:"fast-paced",  conf:78, when:"Jul 30"},
 ];
 
 const NOTES = {
@@ -485,7 +484,6 @@ function renderDetails(){
           <span class="meter"><span class="bar"><i style="width:${t.conf}%"></i></span>${t.conf}%</span>
           <span style="font-size:11px;color:#aaa">Added ${t.when}</span>
         </div>
-        <div class="d-ev">${t.ev}</div>
       </div>
       <button class="btn-mini" onclick="removeMood('${t.name}')">Remove</button>
     </div>`);
@@ -549,7 +547,7 @@ function removeMood(name){
   if(!t) return;
   state.applied = state.applied.filter(x=>x.name!==name);
   if(t.source==="auto" && !state.suppressed.find(s=>s.name===name)){
-    state.suppressed.push({name:t.name, conf:t.conf, ev:t.ev, when:t.when});
+    state.suppressed.push({name:t.name, conf:t.conf, when:t.when});
     toast(`"${name}" removed — it won't be re-applied`);
   }
   renderAll();
@@ -559,7 +557,7 @@ function restoreMood(name){
   if(!s) return;
   if(state.applied.length >= MAX){ toast("Mood limit reached (8) — remove a mood first."); return; }
   state.suppressed = state.suppressed.filter(x=>x.name!==name);
-  state.applied.push({name:s.name, source:"auto", conf:s.conf, ev:s.ev, when:s.when});
+  state.applied.push({name:s.name, source:"auto", conf:s.conf, when:s.when});
   renderAll();
 }
 function restoreSuppressed(){
@@ -573,7 +571,7 @@ function togglePick(name){
   renderAll();
 }
 function resetToAuto(){
-  state.applied = AUTO_DEFAULT.map(a=>({name:a.name, source:"auto", conf:a.conf, ev:a.ev, when:a.when}));
+  state.applied = AUTO_DEFAULT.map(a=>({name:a.name, source:"auto", conf:a.conf, when:a.when}));
   state.suppressed = [];
   renderAll();
   toast("Restored auto-generated moods");
