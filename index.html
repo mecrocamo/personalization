@@ -121,9 +121,9 @@
     display:inline-flex; align-items:center; gap:6px; padding:4px 9px; border-radius:3px;
     font-size:12px; font-weight:600; line-height:1.2; border:1px solid;
   }
-  .chip.auto{background:var(--auto-bg); border-color:var(--auto-line); color:var(--auto-ink);}
+  .chip.auto{background:#fff; border-color:#e2e6ea; color:#41484f;}
   .chip.manual{background:var(--man-bg); border-color:var(--man-line); color:#444;}
-  .chip .spark{font-size:11px;}
+  .chip .spark{font-size:12px;}
   .chip .dot,.moods-meta .dot{width:6px; height:6px; border-radius:50%; background:#777; display:inline-block; flex-shrink:0;}
   .chip .conf{font-weight:400; opacity:.65; font-size:11px;}
   .chip .x{opacity:.45; font-size:12px; padding:0 1px; line-height:1;}
@@ -314,8 +314,8 @@
             <div class="moods-box">
               <div class="chips" id="appliedChips"><!-- js --></div>
               <div class="moods-meta">
-                <span><span class="spark">✦</span> Auto-Generated <span class="note-dot">2</span></span>
-                <span><span class="dot"></span> Added by producer</span>
+                <span><span class="spark">✨</span> Auto-Generated <span class="note-dot">2</span></span>
+                <span><span class="dot"></span> Added by Producer</span>
                 <span>Last scan: Today, 6:12 AM</span>
                 <a href="#" onclick="go(2); return false">View details</a>
                 <span style="margin-left:auto"><button class="btn-mini blue" onclick="go(3)">✎ Edit moods</button></span>
@@ -440,7 +440,7 @@ const AUTO_DEFAULT = [
 const NOTES = {
   1: [
     ["Native to the page","Moods is one more Core Data row — same label/help-icon grammar, same control column, sitting next to Genre where editors already look. <span class='src'>Pattern: extend the form, don't bolt on a module</span>"],
-    ["Provenance at a glance","Auto-Generated moods use the console's info-blue chip with a ✦ mark; producer-added moods use a gray chip with a ● mark — both spelled out in the key. <span class='src'>Seen in: Grammarly, Dovetail, Mindtrip</span>"],
+    ["Provenance at a glance","Auto-Generated moods use a neutral white chip with a ✨ mark; producer-added moods use a gray chip with a ● mark — both spelled out in the key. Blue is reserved for links, so read-only chips never look clickable. <span class='src'>Seen in: Grammarly, Dovetail, Mindtrip</span>"],
     ["Kill switch as a standard toggle","Auto-Generate Moods reuses the page's ON/OFF toggle pattern (Display Episode Number, etc.) — zero new UI to learn. <span class='src'>Seen in: Zapier, Hotjar</span>"],
     ["Transparency instead of approval","Since moods apply automatically, the section shows when the last scan ran and links to details — control shifts from pre-approval to easy post-hoc override. <span class='src'>Seen in: Squarespace Beacon AI</span>"],
   ],
@@ -461,7 +461,7 @@ const NOTES = {
 const $ = id => document.getElementById(id);
 const MAX = 8;
 function chipHTML(t, removable){
-  const mark = t.source === "auto" ? "<span class='spark'>✦</span>" : "<span class='dot'></span>";
+  const mark = t.source === "auto" ? "<span class='spark'>✨</span>" : "<span class='dot'></span>";
   const conf = t.source === "auto" && t.conf ? `<span class="conf">${t.conf}%</span>` : "";
   const x = removable ? `<button class="x" title="Remove" onclick="removeMood('${t.name}')">✕</button>` : "";
   return `<span class="chip ${t.source}">${mark}${t.name}${conf}${x}</span>`;
@@ -481,7 +481,7 @@ function renderDetails(){
     rows.push(`<div class="d-row">
       <div class="d-main">
         <div class="d-top">
-          <span class="chip auto"><span class="spark">✦</span>${t.name}</span>
+          <span class="chip auto"><span class="spark">✨</span>${t.name}</span>
           <span class="meter"><span class="bar"><i style="width:${t.conf}%"></i></span>${t.conf}%</span>
           <span style="font-size:11px;color:#aaa">Added ${t.when}</span>
         </div>
