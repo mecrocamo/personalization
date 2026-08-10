@@ -132,6 +132,10 @@
   .moods-meta .spark{color:var(--auto-ink);}
   .moods-meta a{color:var(--link); text-decoration:none; font-weight:600;}
   .moods-meta a:hover{text-decoration:underline;}
+  .moods-meta .meta-actions{margin-left:auto; display:inline-flex; align-items:center; gap:8px;}
+  .lock-btn{display:inline-flex; align-items:center; gap:5px; background:#fff; border:1px solid #bbb; color:#555; font-size:12px; font-weight:600; padding:4px 10px; border-radius:3px; cursor:pointer;}
+  .lock-btn:hover{background:#f3f3f3; border-color:#999;}
+  .lock-btn.locked{background:#fff4e5; border-color:#f0c98a; color:#a5661a;}
   .btn-mini{
     background:#fff; border:1px solid #bbb; color:#333; font-size:12px; font-weight:600;
     padding:4px 11px; border-radius:3px;
@@ -315,17 +319,16 @@
               <div class="moods-meta">
                 <span><span class="spark">✨</span> Auto-Generated <span class="note-dot">2</span></span>
                 <span><span class="dot"></span> Added by Producer</span>
-                <span>Last scan: Today, 6:12 AM</span>
+                <span id="scanInfo">Last scan: Today, 6:12 AM</span>
                 <a href="#" onclick="go(2); return false">View details</a>
-                <span style="margin-left:auto"><button class="btn-mini blue" onclick="go(3)">✎ Edit moods</button></span>
+                <span class="meta-actions">
+                  <button class="lock-btn" id="lockBtn" onclick="toggleLock()"><span class="lk">🔓</span><span class="lkt">Auto-generation on</span> <span class="note-dot">3</span></button>
+                  <button class="btn-mini blue" onclick="go(3)">✎ Edit moods</button>
+                </span>
               </div>
             </div>
-            <div class="help-inline">Moods power discovery and "more like this" recommendations. Edits you make here always take priority.</div>
+            <div class="help-inline">Moods power discovery and "more like this" recommendations. Edits you make here always take priority. Lock the section to stop auto-generation from changing this show's moods going forward.</div>
           </div>
-        </div>
-        <div class="frow">
-          <div class="flabel">Auto-Generate Moods <span class="q">?</span> <span class="note-dot">3</span></div>
-          <div class="fctrl"><span class="ctog on" id="autoTog" onclick="toggleAuto()"><span class="lab">ON</span><span class="knob"></span></span></div>
         </div>
         <!-- ============ /MOODS ============ -->
 
@@ -377,7 +380,7 @@
         <button class="x" onclick="go(1)">✕</button>
       </div>
       <div class="m-b">
-        <div class="zone-label">Applied to this show <span class="note-dot">1</span> <span class="cnt"><b id="pickCount">5</b> of 8 max <span class="note-dot">3</span></span></div>
+        <div class="zone-label">Applied to this show <span class="note-dot">1</span> <span class="cnt"><b id="pickCount">4</b> of 4 max <span class="note-dot">3</span></span></div>
         <div class="applied-zone">
           <div class="chips" id="pickerApplied"><!-- js --></div>
           <div class="suppress-note" id="suppressNote" style="display:none">
@@ -392,7 +395,7 @@
           <span class="found" id="foundCount"></span>
           <span class="note-dot">2</span>
         </div>
-        <div class="limit-warn" id="limitWarn">Mood limit reached (8) — remove a mood above to add another.</div>
+        <div class="limit-warn" id="limitWarn">Mood limit reached (4) — remove a mood above to add another.</div>
         <div class="vocab-flat" id="vocabFlat"><!-- js --></div>
       </div>
       <div class="m-f">
@@ -420,11 +423,11 @@ const VOCAB = ["absurd","action-packed","adventurous","altruistic","ambitious","
 /* ------------------ state ------------------ */
 let state = {
   screen: 1,
+  autoLocked: false,   // producer lock: when true, future scans won't add or change this show's moods
   applied: [
     {name:"suspenseful", source:"auto",   conf:94, when:"Aug 6"},
     {name:"witty",       source:"auto",   conf:89, when:"Aug 6"},
     {name:"gripping",    source:"auto",   conf:86, when:"Aug 6"},
-    {name:"fast-paced",  source:"auto",   conf:78, when:"Jul 30"},
     {name:"intriguing",  source:"manual"},
   ],
   suppressed: [],   // auto moods the producer removed — won't be re-applied
@@ -440,7 +443,7 @@ const NOTES = {
   1: [
     ["Native to the page","Moods is one more Core Data row — same label/help-icon grammar, same control column, sitting next to Genre where editors already look. <span class='src'>Pattern: extend the form, don't bolt on a module</span>"],
     ["Provenance at a glance","Auto-Generated moods use a neutral white chip with a ✨ mark; producer-added moods use a gray chip with a ● mark — both spelled out in the key. Blue is reserved for links, so read-only chips never look clickable. <span class='src'>Seen in: Grammarly, Dovetail, Mindtrip</span>"],
-    ["Kill switch as a standard toggle","Auto-Generate Moods reuses the page's ON/OFF toggle pattern (Display Episode Number, etc.) — zero new UI to learn. <span class='src'>Seen in: Zapier, Hotjar</span>"],
+    ["Lockable auto-generation","A lock in the Moods section lets the producer freeze auto-generation for this show — existing moods stay, but future scans won't add or change them until it's unlocked. <span class='src'>Pattern: explicit, reversible opt-out</span>"],
     ["Transparency instead of approval","Since moods apply automatically, the section shows when the last scan ran and links to details — control shifts from pre-approval to easy post-hoc override. <span class='src'>Seen in: Squarespace Beacon AI</span>"],
   ],
   2: [
@@ -451,14 +454,14 @@ const NOTES = {
   3: [
     ["Two-zone layout","Applied moods above the line, the full flat vocabulary below — selection state is always visible while browsing. <span class='src'>Seen in: Polywork, Hotjar</span>"],
     ["Flat list needs search-first","With 199 moods and no hierarchy, type-ahead filtering with a live match count is the primary navigation; browsing is the fallback. <span class='src'>Seen in: Fabric, Juicebox</span>"],
-    ["Visible hard limit","A live 'n of 8 max' counter; at the cap, unselected moods disable and an inline message explains the fix — no silent dead ends. <span class='src'>Seen in: Cosmos 'Choose 3', Kit 'up to 3'</span>"],
+    ["Visible hard limit","A live 'n of 4 max' counter; at the cap, unselected moods disable and an inline message explains the fix — no silent dead ends. <span class='src'>Seen in: Cosmos 'Choose 3', Kit 'up to 3'</span>"],
     ["Overrides are reversible","Removed auto-moods are listed with Restore, and 'Reset to auto-generated' returns to the machine's view. <span class='src'>Seen in: Squarespace 'Regenerate'</span>"],
   ],
 };
 
 /* ------------------ helpers ------------------ */
 const $ = id => document.getElementById(id);
-const MAX = 8;
+const MAX = 4;
 function chipHTML(t, removable){
   const mark = t.source === "auto" ? "<span class='spark'>✨</span>" : "<span class='dot'></span>";
   const conf = t.source === "auto" && t.conf ? `<span class="conf">${t.conf}%</span>` : "";
@@ -471,6 +474,7 @@ function renderAll(){
   $("appliedChips").innerHTML = state.applied.map(t=>chipHTML(t,false)).join("");
   renderDetails();
   renderPicker();
+  renderLock();
   renderNotes();
 }
 
@@ -555,7 +559,7 @@ function removeMood(name){
 function restoreMood(name){
   const s = state.suppressed.find(s=>s.name===name);
   if(!s) return;
-  if(state.applied.length >= MAX){ toast("Mood limit reached (8) — remove a mood first."); return; }
+  if(state.applied.length >= MAX){ toast("Mood limit reached (4) — remove a mood first."); return; }
   state.suppressed = state.suppressed.filter(x=>x.name!==name);
   state.applied.push({name:s.name, source:"auto", conf:s.conf, when:s.when});
   renderAll();
@@ -565,7 +569,7 @@ function restoreSuppressed(){
 }
 function togglePick(name){
   if(state.applied.find(t=>t.name===name)){ removeMood(name); return; }
-  if(state.applied.length >= MAX){ toast("Mood limit reached (8) — remove a mood first."); return; }
+  if(state.applied.length >= MAX){ toast("Mood limit reached (4) — remove a mood first."); return; }
   state.suppressed = state.suppressed.filter(s=>s.name!==name);
   state.applied.push({name, source:"manual"});
   renderAll();
@@ -580,12 +584,21 @@ function savePicker(){
   go(1);
   toast("Moods saved — your edits take priority over auto-generation");
 }
-function toggleAuto(){
-  const t = $("autoTog");
-  const on = t.classList.toggle("on");
-  t.classList.toggle("off", !on);
-  t.innerHTML = on ? "<span class='lab'>ON</span><span class='knob'></span>" : "<span class='lab'>OFF</span><span class='knob'></span>";
-  toast(on ? "Auto-Generate Moods on" : "Auto-Generate Moods paused for this show");
+function renderLock(){
+  const b = $("lockBtn");
+  if(!b) return;
+  const locked = state.autoLocked;
+  b.classList.toggle("locked", locked);
+  b.querySelector(".lk").textContent = locked ? "🔒" : "🔓";
+  b.querySelector(".lkt").textContent = locked ? "Auto-generation locked" : "Auto-generation on";
+  $("scanInfo").textContent = locked ? "Auto-generation locked — no new moods will be added" : "Last scan: Today, 6:12 AM";
+}
+function toggleLock(){
+  state.autoLocked = !state.autoLocked;
+  renderLock();
+  toast(state.autoLocked
+    ? "Auto-generation locked — future scans won't change this show's moods"
+    : "Auto-generation unlocked — scans will suggest moods again");
 }
 function toggleNotes(){
   document.body.classList.toggle("notes-on");
