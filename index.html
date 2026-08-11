@@ -345,7 +345,7 @@
               <div class="lock-msg" id="lockMsg"><svg class="lk"><use href="#lock-closed"/></svg> Auto-generation locked — no new keywords will be added</div>
               <div class="moods-meta">
                 <span><span class="spark">✨</span> Auto-Generated <span class="note-dot">2</span></span>
-                <span><span class="dot"></span> Producer-added</span>
+                <span><span class="dot"></span> Producer-Added</span>
                 <span id="scanInfo">Last scan: Today, 6:12 AM</span>
                 <span class="meta-actions">
                   <a class="view-details" href="#" onclick="go(2); return false">View details</a>
@@ -523,7 +523,7 @@ function renderDetails(){
     });
   } else rows.push(`<p class='empty-note' style='padding:5px 2px'>No auto-generated moods right now.</p>`);
 
-  rows.push(`<div class="d-group">Producer-added (${manual.length})</div>`);
+  rows.push(`<div class="d-group">Producer-Added (${manual.length})</div>`);
   if(manual.length){
     manual.forEach(t=>{
       rows.push(`<div class="d-row">
