@@ -388,8 +388,7 @@
         <div class="d-note">🔒 Auto-generation only draws from the approved mood vocabulary (v2.3, 200 moods) — it can't invent new terms. Moods you add or remove always take priority. <span class="note-dot">2</span></div>
       </div>
       <div class="m-f">
-        <span class="left" style="font-size:12px; color:#888" id="detailSummary"></span>
-        <button class="btn-mini" onclick="go(1)">Close</button>
+        <button class="btn-mini" id="detailClose" style="margin-left:auto" onclick="closeDetails()">Close</button>
         <button class="btn-mini blue" onclick="go(3)">✎ Edit moods</button>
       </div>
     </div>
@@ -536,7 +535,7 @@ function renderDetails(){
     });
   } else rows.push(`<p class='empty-note' style='padding:5px 2px'>No producer-added moods yet.</p>`);
 
-  rows.push(`<div class="d-group">Removed (${state.suppressed.length})</div>`);
+  rows.push(`<div class="d-group">Producer-Removed (${state.suppressed.length})</div>`);
   if(state.suppressed.length){
     state.suppressed.forEach(s=>{
       rows.push(`<div class="d-row" style="opacity:.75">
@@ -550,7 +549,8 @@ function renderDetails(){
   } else rows.push(`<p class='empty-note' style='padding:5px 2px'>Nothing removed.</p>`);
 
   $("detailList").innerHTML = rows.join("");
-  $("detailSummary").textContent = `${auto.length} auto-generated · ${manual.length} producer-added · ${state.suppressed.length} removed`;
+  const cb = $("detailClose");
+  if(cb) cb.textContent = detailsDirty ? "Save and close" : "Close";
 }
 
 function renderPicker(){
@@ -583,12 +583,20 @@ function renderNotes(){
 }
 
 /* ------------------ actions ------------------ */
+let detailsDirty = false;   // true once the user edits inside the View details modal
 function go(n){
+  if(n===2) detailsDirty = false;   // fresh open — no unsaved edits yet
   state.screen = n;
   document.querySelectorAll(".tab-btn").forEach(t=>t.classList.toggle("active", +t.dataset.screen===n));
   $("scrim2").classList.toggle("open", n===2);
   $("scrim3").classList.toggle("open", n===3);
+  if(n===2) renderDetails();
   renderNotes();
+}
+function closeDetails(){
+  if(detailsDirty) toast("Changes saved");
+  detailsDirty = false;
+  go(1);
 }
 
 function removeMood(name){
@@ -599,6 +607,7 @@ function removeMood(name){
     state.suppressed.push({name:t.name, conf:t.conf, when:t.when});
     toast(`"${name}" removed — it won't be re-applied`);
   }
+  if(state.screen===2) detailsDirty = true;
   renderAll();
 }
 function restoreMood(name){
@@ -607,6 +616,7 @@ function restoreMood(name){
   if(state.applied.length >= MAX){ toast("Mood limit reached (4) — remove a mood first."); return; }
   state.suppressed = state.suppressed.filter(x=>x.name!==name);
   state.applied.push({name:s.name, source:"auto", conf:s.conf, when:s.when});
+  if(state.screen===2) detailsDirty = true;
   renderAll();
 }
 function restoreSuppressed(){
