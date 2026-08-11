@@ -133,9 +133,14 @@
   .moods-meta a{color:var(--link); text-decoration:none; font-weight:600;}
   .moods-meta a:hover{text-decoration:underline;}
   .moods-meta .meta-actions{margin-left:auto; display:inline-flex; align-items:center; gap:8px;}
-  .lock-btn{display:inline-flex; align-items:center; gap:5px; background:#fff; border:1px solid #bbb; color:#555; font-size:12px; font-weight:600; padding:4px 10px; border-radius:3px; cursor:pointer;}
+  .chips-row{display:flex; align-items:center; gap:10px;}
+  .chips-row .chips{flex:1; min-width:0;}
+  .chips-row .view-details{flex-shrink:0; color:var(--link); text-decoration:none; font-weight:600; font-size:12px;}
+  .chips-row .view-details:hover{text-decoration:underline;}
+  .lock-btn{display:inline-flex; align-items:center; gap:6px; background:#fff; border:1px solid #bbb; color:#555; font-size:12px; font-weight:600; line-height:1.2; padding:4px 11px; border-radius:3px; cursor:pointer;}
   .lock-btn:hover{background:#f3f3f3; border-color:#999;}
   .lock-btn.locked{background:#fff4e5; border-color:#f0c98a; color:#a5661a;}
+  .lock-btn svg.lk{width:14px; height:14px; flex-shrink:0; display:block;}
   .btn-mini{
     background:#fff; border:1px solid #bbb; color:#333; font-size:12px; font-weight:600;
     padding:4px 11px; border-radius:3px;
@@ -311,18 +316,32 @@
         <div class="frow"><div class="flabel">Genre <span class="q">?</span></div><div class="fctrl tight"><select class="tin"><option>Drama</option></select></div></div>
 
         <!-- ============ NEW: MOODS ============ -->
+        <svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs>
+          <symbol id="lock-closed" viewBox="0 0 24 24">
+            <rect x="5" y="11" width="14" height="10" rx="2.2" fill="currentColor"/>
+            <path d="M8 11 V7.5 a4 4 0 0 1 8 0 V11" fill="none" stroke="currentColor" stroke-width="2"/>
+            <circle cx="12" cy="15.4" r="1.5" fill="#fff"/>
+          </symbol>
+          <symbol id="lock-open" viewBox="0 0 24 24">
+            <rect x="5" y="11" width="14" height="10" rx="2.2" fill="currentColor"/>
+            <path d="M8 11 V7.5 a4 4 0 0 1 8 0" fill="none" stroke="currentColor" stroke-width="2"/>
+            <circle cx="12" cy="15.4" r="1.5" fill="#fff"/>
+          </symbol>
+        </defs></svg>
         <div class="frow">
           <div class="flabel">Moods <span class="q">?</span> <span class="note-dot">1</span></div>
           <div class="fctrl tight">
             <div class="moods-box">
-              <div class="chips" id="appliedChips"><!-- js --></div>
+              <div class="chips-row">
+                <div class="chips" id="appliedChips"><!-- js --></div>
+                <a class="view-details" href="#" onclick="go(2); return false">View details</a>
+              </div>
               <div class="moods-meta">
                 <span><span class="spark">✨</span> Auto-Generated <span class="note-dot">2</span></span>
                 <span><span class="dot"></span> Added by Producer</span>
                 <span id="scanInfo">Last scan: Today, 6:12 AM</span>
-                <a href="#" onclick="go(2); return false">View details</a>
                 <span class="meta-actions">
-                  <button class="lock-btn" id="lockBtn" onclick="toggleLock()"><span class="lk">🔓</span><span class="lkt">Auto-generation on</span> <span class="note-dot">3</span></button>
+                  <button class="lock-btn" id="lockBtn" onclick="toggleLock()"><svg class="lk"><use href="#lock-open" id="lockUse"/></svg><span class="lkt">Lock keywords</span> <span class="note-dot">3</span></button>
                   <button class="btn-mini blue" onclick="go(3)">✎ Edit moods</button>
                 </span>
               </div>
@@ -589,16 +608,16 @@ function renderLock(){
   if(!b) return;
   const locked = state.autoLocked;
   b.classList.toggle("locked", locked);
-  b.querySelector(".lk").textContent = locked ? "🔒" : "🔓";
-  b.querySelector(".lkt").textContent = locked ? "Auto-generation locked" : "Auto-generation on";
-  $("scanInfo").textContent = locked ? "Auto-generation locked — no new moods will be added" : "Last scan: Today, 6:12 AM";
+  $("lockUse").setAttribute("href", locked ? "#lock-closed" : "#lock-open");
+  b.querySelector(".lkt").textContent = locked ? "Keywords locked" : "Lock keywords";
+  $("scanInfo").textContent = locked ? "Auto-generation locked — no new keywords will be added" : "Last scan: Today, 6:12 AM";
 }
 function toggleLock(){
   state.autoLocked = !state.autoLocked;
   renderLock();
   toast(state.autoLocked
-    ? "Auto-generation locked — future scans won't change this show's moods"
-    : "Auto-generation unlocked — scans will suggest moods again");
+    ? "Keywords locked — future scans won't change this show"
+    : "Keywords unlocked — auto-generation will suggest keywords again");
 }
 function toggleNotes(){
   document.body.classList.toggle("notes-on");
