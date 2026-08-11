@@ -344,8 +344,8 @@
               </div>
               <div class="lock-msg" id="lockMsg"><svg class="lk"><use href="#lock-closed"/></svg> Auto-generation locked — no new keywords will be added</div>
               <div class="moods-meta">
-                <span><span class="spark">✨</span> Auto-Generated <span class="note-dot">2</span></span>
-                <span><span class="dot"></span> Producer-Added</span>
+                <span><span class="spark">✨</span> Auto-generated <span class="note-dot">2</span></span>
+                <span><span class="dot"></span> Producer-added</span>
                 <span id="scanInfo">Last scan: Today, 6:12 AM</span>
                 <span class="meta-actions">
                   <a class="view-details" href="#" onclick="go(2); return false">View details</a>
@@ -379,13 +379,13 @@
       <div class="m-h">
         <div>
           <h3>View details <span class="note-dot">1</span></h3>
-          <p class="sub">Every mood on <b>Sherlock</b> — auto-generated, producer-added, and removed. Remove any that don't fit; removed moods won't be re-added. <span class="note-dot">3</span></p>
+          <p class="sub">Remove any moods that don't fit. Removed moods won't be re-added. <span class="note-dot">3</span></p>
         </div>
         <button class="x" onclick="go(1)">✕</button>
       </div>
       <div class="m-b">
         <div id="detailList"><!-- js --></div>
-        <div class="d-note">🔒 Auto-generation only draws from the approved mood vocabulary (v2.3, 200 moods) — it can't invent new terms. Moods you add or remove always take priority. <span class="note-dot">2</span></div>
+        <div class="d-note">🔒 Auto-generation only draws from the approved mood vocabulary (v2.3, 200 moods). It can't invent new terms. Moods you add or remove always take priority. <span class="note-dot">2</span></div>
       </div>
       <div class="m-f">
         <button class="btn-mini" id="detailClose" style="margin-left:auto" onclick="closeDetails()">Close</button>
@@ -467,7 +467,7 @@ const AUTO_DEFAULT = [
 const NOTES = {
   1: [
     ["Native to the page","Moods is one more Core Data row — same label/help-icon grammar, same control column, sitting next to Genre where editors already look. <span class='src'>Pattern: extend the form, don't bolt on a module</span>"],
-    ["Provenance at a glance","Auto-Generated moods use a neutral white chip with a ✨ mark; producer-added moods use a gray chip with a ● mark — both spelled out in the key. Blue is reserved for links, so read-only chips never look clickable. <span class='src'>Seen in: Grammarly, Dovetail, Mindtrip</span>"],
+    ["Provenance at a glance","Auto-generated moods use a neutral white chip with a ✨ mark; producer-added moods use a gray chip with a ● mark — both spelled out in the key. Blue is reserved for links, so read-only chips never look clickable. <span class='src'>Seen in: Grammarly, Dovetail, Mindtrip</span>"],
     ["Lockable auto-generation","A lock in the Moods section lets the producer freeze auto-generation for this show — existing moods stay, but future scans won't add or change them until it's unlocked. <span class='src'>Pattern: explicit, reversible opt-out</span>"],
     ["Transparency instead of approval","Since moods apply automatically, the section shows when the last scan ran and links to details — control shifts from pre-approval to easy post-hoc override. <span class='src'>Seen in: Squarespace Beacon AI</span>"],
   ],
@@ -522,7 +522,7 @@ function renderDetails(){
     });
   } else rows.push(`<p class='empty-note' style='padding:5px 2px'>No auto-generated moods right now.</p>`);
 
-  rows.push(`<div class="d-group">Producer-Added (${manual.length})</div>`);
+  rows.push(`<div class="d-group">Producer-added (${manual.length})</div>`);
   if(manual.length){
     manual.forEach(t=>{
       rows.push(`<div class="d-row">
@@ -535,7 +535,7 @@ function renderDetails(){
     });
   } else rows.push(`<p class='empty-note' style='padding:5px 2px'>No producer-added moods yet.</p>`);
 
-  rows.push(`<div class="d-group">Producer-Removed (${state.suppressed.length})</div>`);
+  rows.push(`<div class="d-group">Producer-removed (${state.suppressed.length})</div>`);
   if(state.suppressed.length){
     state.suppressed.forEach(s=>{
       rows.push(`<div class="d-row" style="opacity:.75">
